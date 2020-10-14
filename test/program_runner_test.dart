@@ -16,7 +16,7 @@ void main() {
   setUp(() {
     reset(mockLogger);
 
-    sut = ProgramRunner(mockLogger);
+    sut = ProgramRunner(mockLogger, "");
   });
 
   Future<int> _run(List<String> args) => Platform.isWindows

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dart_pre_commit/src/build_runner.dart';
 import 'package:dart_pre_commit/src/file_resolver.dart';
 import 'package:meta/meta.dart';
 import 'package:yaml/yaml.dart';
@@ -65,6 +66,7 @@ class Hooks {
   final FixImports _fixImports;
   final Format _format;
   final Analyze _analyze;
+  final BuildRunner _buildRunner;
 
   /// The [Logger] instance used to log progress and errors
   final Logger logger;
@@ -86,12 +88,14 @@ class Hooks {
     FixImports fixImports,
     Format format,
     Analyze analyze,
+    BuildRunner buildRunner,
     this.continueOnError = false,
   })  : _resolver = resolver,
         _runner = runner,
         _fixImports = fixImports,
         _format = format,
-        _analyze = analyze;
+        _analyze = analyze,
+        _buildRunner = buildRunner;
 
   /// Constructs a new [Hooks] instance.
   ///
@@ -123,10 +127,11 @@ class Hooks {
     bool format = true,
     bool analyze = true,
     bool continueOnError = false,
+    bool buildRunner = true,
     Logger logger = const Logger.standard(),
   }) async {
     final resolver = FileResolver();
-    final runner = ProgramRunner(logger);
+    final runner = ProgramRunner(logger, Directory.current.path);
     return Hooks.internal(
       logger: logger,
       resolver: resolver,
@@ -141,6 +146,7 @@ class Hooks {
             )
           : null,
       continueOnError: continueOnError,
+      buildRunner: buildRunner ? BuildRunner(runner) : null,
     );
   }
 
@@ -164,6 +170,7 @@ class Hooks {
     try {
       var lintState = HookResult.clean;
       final files = await _collectFiles();
+      var formated = false;
 
       for (final entry in files.entries) {
         final file = File(entry.key);
@@ -173,8 +180,12 @@ class Hooks {
           if (_fixImports != null) {
             modified = await _fixImports(file) || modified;
           }
-          if (_format != null) {
+          if (_format != null && !formated) {
             modified = await _format(file) || modified;
+            if(_buildRunner != null) {
+              modified = await _buildRunner() || modified;
+            }
+            formated = true;
           }
 
           if (modified) {

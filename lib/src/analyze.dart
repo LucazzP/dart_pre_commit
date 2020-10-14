@@ -49,17 +49,21 @@ class Analyze {
     }
 
     var lintCnt = 0;
+    var errorsCount = 0;
     for (final entry in lints.entries) {
       if (entry.value.isNotEmpty) {
         for (final lint in entry.value) {
+          if (lint.category == 'error') {
+            ++errorsCount;
+          }
           ++lintCnt;
           logger.log(lint.toString());
         }
       }
     }
 
-    logger.log("$lintCnt issue(s) found.");
-    return lintCnt > 0;
+    logger.log("$lintCnt issue(s) found, $errorsCount error(s) found.");
+    return errorsCount > 0;
   }
 
   Stream<AnalyzeResult> _runAnalyze() async* {
@@ -68,7 +72,6 @@ class Analyze {
           "dart",
           const [
             "analyze",
-            "--fatal-infos",
           ],
           failOnExit: false,
         )
