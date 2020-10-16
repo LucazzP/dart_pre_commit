@@ -35,12 +35,13 @@ class ProgramRunner {
 
   Future<int> run(
     String program,
-    List<String> arguments,
-  ) async {
+    List<String> arguments, {
+    bool runInShell = true,
+  }) async {
     final process = await Process.start(
       program,
       arguments,
-      runInShell: true,
+      runInShell: runInShell,
       workingDirectory: workingDirectory,
     );
     _logger.pipeStderr(process.stderr);

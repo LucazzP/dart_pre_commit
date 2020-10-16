@@ -19,12 +19,10 @@ class Format {
     //   ],
     // );
 
-    // final exitCode = await runner.run("dart", ['pub', '']);
-
     final exitCode = await runner.run(
       "flutter",
       [
-        'pub',
+        "packages",
         "run",
         "dartfix",
         "--pedantic",
