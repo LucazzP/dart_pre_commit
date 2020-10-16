@@ -19,6 +19,8 @@ class Format {
     //   ],
     // );
 
+    await runner.run("flutter", ['packages', 'pub', 'global', 'activate', "dartfix"]);
+
     final exitCode = await runner.run(
       "flutter",
       [
