@@ -25,6 +25,7 @@ class Format {
       "flutter",
       [
         "packages",
+        'pub',
         "run",
         "dartfix",
         "--pedantic",
